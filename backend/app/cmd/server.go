@@ -37,6 +37,7 @@ func main() {
 		Repanic: true,
 	}))
 	r.Use(timeoutMiddleware())
+	// TODO: CORSを設定する
 
 	r.GET("/ping", controller.GetPing)
 	r.GET("/panic", func(c *gin.Context) {
