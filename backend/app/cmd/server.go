@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/getsentry/sentry-go"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/minomusigk/tech-blog-summary/backend/app/presentation/controller"
+	"go.uber.org/zap"
 
 	sentrygin "github.com/getsentry/sentry-go/gin"
 )
@@ -20,12 +23,22 @@ func main() {
 		fmt.Printf("Sentry initialization failed: %v", err)
 	}
 
-	r := gin.Default()
+	r := gin.New()
 
+	logger, _ := zap.NewProduction()
+
+	// TODO: RequestごとのIDを取得する
+	// https://github.com/gin-contrib/zap?tab=readme-ov-file#custom-zap-fields
+	r.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+	r.Use(ginzap.RecoveryWithZap(logger, true))
 	r.Use(sentrygin.New(sentrygin.Options{
 		Repanic: true,
 	}))
 
 	r.GET("/ping", controller.GetPing)
+	r.GET("/panic", func(c *gin.Context) {
+		panic("An unexpected error happen!")
+	})
+
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
