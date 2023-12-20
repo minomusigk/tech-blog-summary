@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/gin-contrib/timeout"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/minomusigk/tech-blog-summary/backend/app/presentation/controller"
@@ -34,6 +36,7 @@ func main() {
 	r.Use(sentrygin.New(sentrygin.Options{
 		Repanic: true,
 	}))
+	r.Use(timeoutMiddleware())
 
 	r.GET("/ping", controller.GetPing)
 	r.GET("/panic", func(c *gin.Context) {
@@ -41,4 +44,18 @@ func main() {
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080
+}
+
+func timeoutResponse(c *gin.Context) {
+	c.String(http.StatusRequestTimeout, "timeout")
+}
+
+func timeoutMiddleware() gin.HandlerFunc {
+	return timeout.New(
+		timeout.WithTimeout(500*time.Millisecond),
+		timeout.WithHandler(func(c *gin.Context) {
+			c.Next()
+		}),
+		timeout.WithResponse(timeoutResponse),
+	)
 }
