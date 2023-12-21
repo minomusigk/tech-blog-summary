@@ -12,3 +12,6 @@ up-d: ## Run docker compose -d
 
 down: ## Run docker compose down
 	docker compose down;
+
+lint: ## run linter
+	golangci-lint run --timeout 5m0s ./app/...

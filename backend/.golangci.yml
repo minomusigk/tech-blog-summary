@@ -1,0 +1,39 @@
+run:
+  go: "1.21"
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+
+linters:
+  enable-all: true
+  disable:
+    # dsiabled
+    - asasalint
+    - depguard
+    - errcheck
+    - exhaustruct
+    - godot
+    - godox
+    - gomnd
+    - lll
+    - nlreturn
+    - varnamelen
+    - gosmopolitan
+    # deprecated
+    - deadcode
+    - exhaustivestruct
+    - golint
+    - ifshort
+    - interfacer
+    - maligned
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - varcheck

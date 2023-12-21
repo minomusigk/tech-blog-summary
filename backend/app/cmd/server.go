@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -22,7 +22,7 @@ func main() {
 		// パフォーマンス計測に必要なサンプリング数を節約のため10％に指定
 		TracesSampleRate: 0.1,
 	}); err != nil {
-		fmt.Printf("Sentry initialization failed: %v", err)
+		log.Printf("Sentry initialization failed: %v", err)
 	}
 
 	r := gin.New()
