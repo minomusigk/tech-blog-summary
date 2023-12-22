@@ -12,7 +12,7 @@
       ]
     }
   ],
-  "dictionaries": ["common", "golang", "kubernetes"],
+  "dictionaries": ["common", "golang"],
   "dictionaryDefinitions": [
     {
       "name": "common",
