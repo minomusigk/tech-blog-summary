@@ -1,0 +1,45 @@
+name: frontend
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/frontend.yml
+      - frontend/**
+
+jobs:
+  vars:
+    runs-on: ubuntu-latest
+    outputs:
+      NODE_VERSION: ${{ steps.node.outputs.NODE_VERSION }}
+    steps:
+      - name: Set up node vars
+        id: node
+        run: |
+          echo "NODE_VERSION=20.10" >> $GITHUB_OUTPUT
+  prettier:
+    runs-on: ubuntu-latest
+    needs:
+      - vars
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.vars.output.NODE_VERSION }}
+      - run: yarn install
+        working-directory: ./frontend
+      - run: yarn fmt
+        working-directory: ./frontend
+  eslint:
+    runs-on: ubuntu-latest
+    needs:
+      - vars
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.vars.output.NODE_VERSION }}
+      - run: yarn install
+        working-directory: ./frontend
+      - run: yarn lint
+        working-directory: ./frontend
