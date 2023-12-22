@@ -7,3 +7,16 @@ services:
       dockerfile: ./build/Dockerfile
     ports:
       - 8080:8080
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      target: local
+      dockerfile: ./build/Dockerfile
+    working_dir: /app
+    volumes:
+      - ./frontend:/app:cached
+    ports:
+      - 5173:5173
+    environment:
+      - CHOKIDAR_USEPOLLING=true
