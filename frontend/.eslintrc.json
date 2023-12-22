@@ -10,6 +10,7 @@
     "sourceType": "module"
   },
   "plugins": ["@typescript-eslint", "react"],
+  "ignorePatterns": "vite.config.ts",
   "rules": {
     // 指定した拡張子の記述を禁止
     "import/extensions": [
