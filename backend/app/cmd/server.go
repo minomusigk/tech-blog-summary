@@ -6,13 +6,12 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-contrib/timeout"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/minomusigk/tech-blog-summary/backend/app/presentation/controller"
 	"go.uber.org/zap"
-
-	sentrygin "github.com/getsentry/sentry-go/gin"
 )
 
 func main() {
