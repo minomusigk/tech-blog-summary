@@ -1,0 +1,27 @@
+{
+  // Version of the setting file.  Always 0.2
+  "version": "0.2",
+  "languageSettings": [
+    {
+      "languageId": "go",
+      "ignoreRegExpList": [
+        // ignore multiline imports
+        "import\\s*\\((.|[\r\n])*?\\)",
+        // ignore single line imports
+        "import\\s*.*\".*?\""
+      ]
+    }
+  ],
+  "dictionaries": ["common", "golang"],
+  "dictionaryDefinitions": [
+    {
+      "name": "common",
+      "path": "../.cspell/dictionaries/common.txt"
+    },
+    {
+      "name": "golang",
+      "path": "../.cspell/dictionaries/golang.txt"
+    }
+  ],
+  "ignorePaths": [".cspell.json", ".golangci.yml"]
+}
