@@ -1,0 +1,20 @@
+{
+  // Version of the setting file.  Always 0.2
+  "version": "0.2",
+  "languageSettings": [
+    {
+      "languageId": "typescript"
+    }
+  ],
+  "dictionaries": ["common", "typescript"],
+  "dictionaryDefinitions": [
+    {
+      "name": "common",
+      "path": "../.cspell/dictionaries/common.txt"
+    },
+    {
+      "name": "typescript",
+      "path": "../.cspell/dictionaries/typescript.txt"
+    }
+  ]
+}
