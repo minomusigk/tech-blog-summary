@@ -1,6 +1,6 @@
 module github.com/minomusigk/tech-blog-summary/backend
 
-go 1.21.5
+go 1.21
 
 require (
 	github.com/getsentry/sentry-go v0.25.0
