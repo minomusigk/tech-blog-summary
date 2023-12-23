@@ -5,6 +5,8 @@ services:
       context: ./backend
       target: local
       dockerfile: ./build/Dockerfile
+    volumes:
+      - ./backend:/go/src/app
     ports:
       - 8080:8080
   frontend:
@@ -20,3 +22,4 @@ services:
       - 5173:5173
     environment:
       - CHOKIDAR_USEPOLLING=true
+    cpu_quota: 70000
