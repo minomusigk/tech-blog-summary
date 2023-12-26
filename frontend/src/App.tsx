@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import { Configuration, GetPingApiFactory } from './api/axios';
 
-function App() {
+const App = (): JSX.Element => {
+  const [message, setMessage] = useState('null');
+
+  const apiConfig = new Configuration({
+    basePath: 'http://localhost:8080',
+  });
+  const client = GetPingApiFactory(apiConfig);
+
+  const onPingButtonClick = async () => {
+    const result = await client.getPing();
+    setMessage(result.data.message);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button onClick={() => onPingButtonClick()}>ping</button>
+      <div>{message}</div>
     </div>
   );
-}
+};
 
 export default App;

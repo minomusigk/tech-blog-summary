@@ -7,10 +7,12 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/timeout"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/minomusigk/tech-blog-summary/backend/app/presentation/controller"
+	"github.com/minomusigk/tech-blog-summary/backend/oapi"
 	"go.uber.org/zap"
 )
 
@@ -36,12 +38,19 @@ func main() {
 		Repanic: true,
 	}))
 	r.Use(timeoutMiddleware())
-	// TODO: CORSを設定する
+	r.Use(cors.New(
+		cors.Config{
+			AllowOrigins:     []string{"http://localhost:5173"},
+			AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
+			AllowCredentials: false,
+			MaxAge:           300,
+		},
+	))
 
-	r.GET("/ping", controller.GetPing)
-	r.GET("/panic", func(c *gin.Context) {
-		panic("An unexpected error happen!")
-	})
+	var pingController controller.PingController
+
+	oapi.RegisterHandlers(r, &pingController)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
