@@ -23,3 +23,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     cpu_quota: 70000
+  openapi-generator-cli:
+    image: openapitools/openapi-generator-cli:latest-release
+    volumes:
+      - ./:/app
+    working_dir: /app

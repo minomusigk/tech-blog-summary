@@ -1,0 +1,33 @@
+openapi: 3.1.0
+info:
+  title: tech-blog-tech-blog-summary
+  version: 1.0.0
+
+servers:
+  - url: "http://localhost:8080"
+    description: local dev
+
+paths:
+  "/ping":
+    get:
+      tags:
+        - getPing
+      operationId: getPing
+      responses:
+        "200":
+          description: get ping success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ping"
+        "400":
+          description: 不正なリクエストです。
+
+components:
+  schemas:
+    ping:
+      properties:
+        message:
+          type: string
+      required:
+        - message
