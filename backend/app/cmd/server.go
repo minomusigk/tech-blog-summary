@@ -40,11 +40,9 @@ func main() {
 	r.Use(timeoutMiddleware())
 	r.Use(cors.New(
 		cors.Config{
-			AllowOrigins: []string{
-				"http://localhost:5173",
-			},
-			AllowMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-			AllowHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+			AllowOrigins:[]string{"http://localhost:5173"},
+			AllowMethods:[]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowHeaders:[]string{"Accept", "Authorization", "Content-Type"},
 			AllowCredentials: false,
 			MaxAge:           300,
 		},
