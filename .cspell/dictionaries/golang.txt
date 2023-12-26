@@ -1,4 +1,5 @@
 gcflags
 multiclient
 sentrygin
+struct
 tmpl
