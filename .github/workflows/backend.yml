@@ -30,6 +30,8 @@ jobs:
           go-version: ${{ needs.vars.outputs.GO_VERSION }}
           cache: true
           cache-dependency-path: backend/go.sum
+      - run: |
+          go install github.com/daixiang0/gci@latest
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
