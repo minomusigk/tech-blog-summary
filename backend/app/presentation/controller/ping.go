@@ -9,7 +9,5 @@ import (
 type PingController struct{}
 
 func (*PingController) GetPing(c *gin.Context) {
-    c.JSON(http.StatusOK, gin.H{
-		"message": "ping",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ping"})
 }
