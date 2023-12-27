@@ -57,5 +57,9 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.33.2",
     "vite": "^5.0.10"
+  },
+  "resolutions": {
+    "postcss": "^8.4.31",
+    "nth-check": "^2.0.1"
   }
 }
