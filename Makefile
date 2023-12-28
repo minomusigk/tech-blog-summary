@@ -17,7 +17,7 @@ lint: ## run linter
 	golangci-lint run --timeout 5m0s ./app/...
 
 gen-oapi-server:
-	oapi-codegen --config=oapi-codegen/oapi-config.yml -generate gin -o backend/oapi/oapi.gen.go openapi/openapi.yml
+	oapi-codegen --config=oapi-codegen/oapi-config.yml -o backend/oapi/oapi.gen.go openapi/openapi.yml
 
 gen-oapi-client:
 	docker compose run --rm openapi-generator-cli generate -g typescript-axios -i openapi/openapi.yml -o ./frontend/src/api/axios --additional-properties=useSingleRequestParameter=true

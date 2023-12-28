@@ -1,5 +1,8 @@
+Atoi
 gcflags
+gofeed
 multiclient
 sentrygin
+strconv
 struct
 tmpl

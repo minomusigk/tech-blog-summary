@@ -48,9 +48,18 @@ func main() {
 		},
 	))
 
-	var pingController controller.PingController
+	type Controllers struct {
+		*controller.PingController
+		*controller.RssController
+	}
 
-	oapi.RegisterHandlers(r, &pingController)
+	controllers := &Controllers{
+		PingController: controller.NewPingController(),
+		RssController:  controller.NewRssController(),
+	}
+
+	strictAPIHandler := oapi.NewStrictHandler(controllers, nil)
+	oapi.RegisterHandlers(r, strictAPIHandler)
 
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

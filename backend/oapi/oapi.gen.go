@@ -4,14 +4,43 @@
 package oapi
 
 import (
+	"bytes"
+	"compress/gzip"
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"path"
+	"strings"
+
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
+	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
 )
+
+// Ping defines model for ping.
+type Ping struct {
+	Message string `json:"message"`
+}
+
+// Rss defines model for rss.
+type Rss struct {
+	Description   string `json:"description"`
+	LastBuildDate string `json:"lastBuildDate"`
+	Link          string `json:"link"`
+	Title         string `json:"title"`
+}
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /ping)
 	GetPing(c *gin.Context)
+
+	// (GET /rss)
+	GetRss(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -34,6 +63,19 @@ func (siw *ServerInterfaceWrapper) GetPing(c *gin.Context) {
 	}
 
 	siw.Handler.GetPing(c)
+}
+
+// GetRss operation middleware
+func (siw *ServerInterfaceWrapper) GetRss(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetRss(c)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -64,4 +106,209 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/ping", wrapper.GetPing)
+	router.GET(options.BaseURL+"/rss", wrapper.GetRss)
+}
+
+type GetPingRequestObject struct {
+}
+
+type GetPingResponseObject interface {
+	VisitGetPingResponse(w http.ResponseWriter) error
+}
+
+type GetPing200JSONResponse Ping
+
+func (response GetPing200JSONResponse) VisitGetPingResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetPing400Response struct {
+}
+
+func (response GetPing400Response) VisitGetPingResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GetRssRequestObject struct {
+}
+
+type GetRssResponseObject interface {
+	VisitGetRssResponse(w http.ResponseWriter) error
+}
+
+type GetRss200JSONResponse Rss
+
+func (response GetRss200JSONResponse) VisitGetRssResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetRss400Response struct {
+}
+
+func (response GetRss400Response) VisitGetRssResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+// StrictServerInterface represents all server handlers.
+type StrictServerInterface interface {
+
+	// (GET /ping)
+	GetPing(ctx context.Context, request GetPingRequestObject) (GetPingResponseObject, error)
+
+	// (GET /rss)
+	GetRss(ctx context.Context, request GetRssRequestObject) (GetRssResponseObject, error)
+}
+
+type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
+type StrictMiddlewareFunc = strictgin.StrictGinMiddlewareFunc
+
+func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
+	return &strictHandler{ssi: ssi, middlewares: middlewares}
+}
+
+type strictHandler struct {
+	ssi         StrictServerInterface
+	middlewares []StrictMiddlewareFunc
+}
+
+// GetPing operation middleware
+func (sh *strictHandler) GetPing(ctx *gin.Context) {
+	var request GetPingRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetPing(ctx, request.(GetPingRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetPing")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetPingResponseObject); ok {
+		if err := validResponse.VisitGetPingResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetRss operation middleware
+func (sh *strictHandler) GetRss(ctx *gin.Context) {
+	var request GetRssRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetRss(ctx, request.(GetRssRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetRss")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetRssResponseObject); ok {
+		if err := validResponse.VisitGetRssResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// Base64 encoded, gzipped, json marshaled Swagger object
+var swaggerSpec = []string{
+
+	"H4sIAAAAAAAC/7RSvW4UQQx+lZOh3NxugCKaEiEhOkQbXTHMOrsDuzPD2BspilbiLg0ND0BNAYqEaOF5",
+	"BvEcyDMH0YU7iYJUtvzz2d9nX4LxY/AOHROoSyDT46izG6zrso0+YGSLOToike5QXL4ICAqIo1TOcwUR",
+	"30w2Ygvq9E/hSuJEfyO1SCbawNa7PWgVDJr48WSH9olm3F9h3eu9CbY8/MOKpWyLU+0sdHv8apZm6858",
+	"hi34wGj6o5eD745uPJrGUccLqOAcI2VycLxslo0s5gM6HSwoeLg8XjZQQdDcZznq33p3yGJEKi27PGtB",
+	"wVPk55IXAhS8o6Lhg6YRY7xjdLlNhzBYkxvrV1SkLUcV737EM1Bwr765er09eZmfae5cRvZZSG5BkzFI",
+	"JDwelbm7hT++vf/55WNaX6er67T5mjaf0+Z7unqX1p/S+kN6u8kHYN2RiN9tGa0kWG8/5BD3F0R3SV2m",
+	"H2Aeif4/caFTPoowypuAOr0NOnijh0WL51DBFAdQ0DMHVdc50XtiddKcNDCv5l8BAAD//8a+ouLFAwAA",
+}
+
+// GetSwagger returns the content of the embedded swagger specification file
+// or error if failed to decode
+func decodeSpec() ([]byte, error) {
+	zipped, err := base64.StdEncoding.DecodeString(strings.Join(swaggerSpec, ""))
+	if err != nil {
+		return nil, fmt.Errorf("error base64 decoding spec: %w", err)
+	}
+	zr, err := gzip.NewReader(bytes.NewReader(zipped))
+	if err != nil {
+		return nil, fmt.Errorf("error decompressing spec: %w", err)
+	}
+	var buf bytes.Buffer
+	_, err = buf.ReadFrom(zr)
+	if err != nil {
+		return nil, fmt.Errorf("error decompressing spec: %w", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
+var rawSpec = decodeSpecCached()
+
+// a naive cached of a decoded swagger spec
+func decodeSpecCached() func() ([]byte, error) {
+	data, err := decodeSpec()
+	return func() ([]byte, error) {
+		return data, err
+	}
+}
+
+// Constructs a synthetic filesystem for resolving external references when loading openapi specifications.
+func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {
+	res := make(map[string]func() ([]byte, error))
+	if len(pathToFile) > 0 {
+		res[pathToFile] = rawSpec
+	}
+
+	return res
+}
+
+// GetSwagger returns the Swagger specification corresponding to the generated code
+// in this file. The external references of Swagger specification are resolved.
+// The logic of resolving external references is tightly connected to "import-mapping" feature.
+// Externally referenced files must be embedded in the corresponding golang packages.
+// Urls can be supported but this task was out of the scope.
+func GetSwagger() (swagger *openapi3.T, err error) {
+	resolvePath := PathToRawSpec("")
+
+	loader := openapi3.NewLoader()
+	loader.IsExternalRefsAllowed = true
+	loader.ReadFromURIFunc = func(loader *openapi3.Loader, url *url.URL) ([]byte, error) {
+		pathToFile := url.String()
+		pathToFile = path.Clean(pathToFile)
+		getSpec, ok := resolvePath[pathToFile]
+		if !ok {
+			err1 := fmt.Errorf("path not found: %s", pathToFile)
+			return nil, err1
+		}
+		return getSpec()
+	}
+	var specData []byte
+	specData, err = rawSpec()
+	if err != nil {
+		return
+	}
+	swagger, err = loader.LoadFromData(specData)
+	if err != nil {
+		return
+	}
+	return
 }

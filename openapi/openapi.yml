@@ -22,6 +22,20 @@ paths:
                 $ref: "#/components/schemas/ping"
         "400":
           description: 不正なリクエストです。
+  "/rss":
+    get:
+      tags:
+        - getRss
+      operationId: getRss
+      responses:
+        "200":
+          description: get rss success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rss"
+        "400":
+          description: 不正なリクエストです。
 
 components:
   schemas:
@@ -31,3 +45,18 @@ components:
           type: string
       required:
         - message
+    rss:
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        description:
+          type: string
+        lastBuildDate:
+          type: string
+      required:
+        - title
+        - link
+        - description
+        - lastBuildDate

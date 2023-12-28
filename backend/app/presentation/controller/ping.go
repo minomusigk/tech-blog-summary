@@ -1,13 +1,17 @@
 package controller
 
 import (
-	"net/http"
+	"context"
 
-	"github.com/gin-gonic/gin"
+	"github.com/minomusigk/tech-blog-summary/backend/oapi"
 )
 
 type PingController struct{}
 
-func (*PingController) GetPing(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "ping"})
+func NewPingController() *PingController {
+	return &PingController{}
+}
+
+func (*PingController) GetPing(c context.Context, _ oapi.GetPingRequestObject) (oapi.GetPingResponseObject, error) {
+	return oapi.GetPing200JSONResponse{Message: "pong"}, nil
 }
